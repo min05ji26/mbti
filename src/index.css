@@ -1,0 +1,181 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #edeafb;
+  font-family: 'Gothic A1', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: #6c5ce7;
+  text-decoration: none;
+}
+a:hover {
+  color: #5347c4;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+input {
+  font-family: inherit;
+}
+
+/* ---- keyframes ported from the design ---- */
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1.5deg);
+  }
+  50% {
+    transform: translateY(-11px) rotate(1.5deg);
+  }
+}
+@keyframes popin {
+  0% {
+    transform: scale(0.7) translateY(18px);
+    opacity: 0;
+  }
+  62% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes fadeup {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+@keyframes aurora {
+  0%,
+  100% {
+    transform: translate3d(-6%, -4%, 0) scale(1.1);
+  }
+  50% {
+    transform: translate3d(6%, 6%, 0) scale(1.25);
+  }
+}
+@keyframes aurora2 {
+  0%,
+  100% {
+    transform: translate3d(5%, 3%, 0) scale(1.2);
+  }
+  50% {
+    transform: translate3d(-7%, -6%, 0) scale(1.05);
+  }
+}
+@keyframes blobby {
+  0%,
+  100% {
+    border-radius: 52% 48% 44% 56% / 58% 56% 44% 42%;
+  }
+  33% {
+    border-radius: 44% 56% 58% 42% / 48% 44% 56% 52%;
+  }
+  66% {
+    border-radius: 56% 44% 48% 52% / 44% 58% 42% 56%;
+  }
+}
+@keyframes spinslow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes wag {
+  0%,
+  100% {
+    transform: rotate(14deg);
+  }
+  50% {
+    transform: rotate(-26deg);
+  }
+}
+@keyframes armup {
+  0%,
+  100% {
+    transform: rotate(-38deg);
+  }
+  50% {
+    transform: rotate(-58deg);
+  }
+}
+@keyframes sway {
+  0%,
+  100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+@keyframes twitch {
+  0%,
+  86%,
+  100% {
+    transform: rotate(-8deg);
+  }
+  92% {
+    transform: rotate(-18deg);
+  }
+}
+@keyframes tapfoot {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+@keyframes toastin {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 14px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
