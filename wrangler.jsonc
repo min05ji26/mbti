@@ -1,0 +1,8 @@
+{
+  "name": "mbti",
+  "compatibility_date": "2026-09-11",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}
