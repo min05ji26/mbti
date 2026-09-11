@@ -95,7 +95,7 @@ export interface Question {
 
 export const QUESTIONS: Question[] = [
   {
-    text: '쉬는 시간 종이 울렸다! 나는?',
+    text: '처음 만난 사람이 나에게 먼저 말을 걸었다.',
     opts: [
       { text: '친구들한테 바로 달려간다', w: { dog: 2 } },
       { text: '자리에서 좋아하는 거 조용히 한다', w: { cat: 2 } },
