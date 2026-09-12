@@ -135,7 +135,7 @@ function Home({ t }: { t: TestApi }) {
           내 성격이 동물이면<br />어떤 애일까?
         </h1>
         <p style={S({ margin: 0, font: "500 14px/1.6 'Gothic A1'", color: 'rgba(46,42,77,.6)' })}>
-          질문 {QUESTIONS.length}개, 1분이면 끝! 결과로 부스에서 만들 슬라임이 정해져
+          질문 {QUESTIONS.length}개, 30초면 끝! 결과로 부스에서 만들 슬라임이 정해져
         </p>
       </div>
 
