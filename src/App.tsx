@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import { useState, type CSSProperties } from 'react';
 import AnimalCharacter from './components/AnimalCharacter';
 import { BOOTH } from './config';
 import { CHIPS, KW_BG, KW_INK, ORDER, QUESTIONS, STATS, TYPES } from './data';
@@ -135,7 +135,7 @@ function Home({ t }: { t: TestApi }) {
           내 성격이 동물이면<br />어떤 애일까?
         </h1>
         <p style={S({ margin: 0, font: "500 14px/1.6 'Gothic A1'", color: 'rgba(46,42,77,.6)' })}>
-          질문 {QUESTIONS.length}개, 30초면 끝! 결과로 부스에서 만들 슬라임이 정해져
+          질문 {QUESTIONS.length}개, 결과로 부스에서 빠르게 체험할 수 있어
         </p>
       </div>
 
@@ -258,7 +258,12 @@ function Quiz({ t }: { t: TestApi }) {
 }
 
 /* ================= LOADING ================= */
+const LOADING_PHRASES = ['조물조물', '뚝딱뚝딱', '찌릿찌릿', '조몰락조몰락', '꾹꾹'];
+
 function Loading() {
+  const [phrase] = useState(
+    () => LOADING_PHRASES[Math.floor(Math.random() * LOADING_PHRASES.length)],
+  );
   return (
     <div style={S({ position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 26, padding: 24 })}>
       <div style={S({ position: 'relative', width: 152, height: 152, display: 'flex', alignItems: 'center', justifyContent: 'center' })}>
@@ -267,7 +272,7 @@ function Loading() {
       </div>
       <div style={S({ textAlign: 'center' })}>
         <div style={S({ fontFamily: "'Jua',sans-serif", fontSize: 22, color: INK })}>슬라임 반죽하는 중…</div>
-        <div style={S({ marginTop: 6, font: "500 13px 'Gothic A1'", color: 'rgba(46,42,77,.55)' })}>조물조물</div>
+        <div style={S({ marginTop: 6, font: "500 13px 'Gothic A1'", color: 'rgba(46,42,77,.55)' })}>{phrase}</div>
       </div>
     </div>
   );
@@ -326,9 +331,6 @@ function Result({ t }: { t: TestApi }) {
         <div style={S({ marginTop: 24, font: "800 13px/1.4 'Gothic A1'", color: res.ink })}>{res.species} · {res.tagline}</div>
         <h2 style={S({ margin: '8px 0 0', fontFamily: "'Jua',sans-serif", fontSize: 31, color: INK })}>{res.name}</h2>
         <div style={S({ marginTop: 6, font: "600 14px/1.5 'Gothic A1'", color: 'rgba(46,42,77,.62)' })}>{res.sub}</div>
-        <div style={S({ marginTop: 12, display: 'inline-block', padding: '6px 12px', borderRadius: 999, background: 'rgba(255,255,255,.75)', font: "700 11.5px/1 'Gothic A1'", color: 'rgba(46,42,77,.6)' })}>
-          전체 참가자의 {res.share}가 이 유형
-        </div>
       </div>
 
       <div style={S({ marginTop: 20, background: 'rgba(255,255,255,.92)', borderRadius: 24, padding: '22px 20px', boxShadow: '0 8px 24px rgba(76,64,150,.12)', animation: 'fadeup .5s .08s ease both' })}>
@@ -341,20 +343,21 @@ function Result({ t }: { t: TestApi }) {
       </div>
 
       <div style={S({ marginTop: 12, display: 'flex', gap: 10 })}>
-        <div style={S({ flex: 1, background: 'rgba(255,255,255,.92)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 6px 18px rgba(76,64,150,.1)' })}>
+        <div style={S({ flex: 'none', background: 'rgba(255,255,255,.92)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 6px 18px rgba(76,64,150,.1)' })}>
           <div style={S({ font: "800 11px/1 'Gothic A1'", color: 'rgba(46,42,77,.48)' })}>환상의 짝꿍</div>
+          <AnimalCharacter kind={res.best} scale={0.27} />
           <div style={S({ marginTop: 8, fontFamily: "'Jua',sans-serif", fontSize: 16, color: INK })}>{TYPES[res.best].name}</div>
-        </div>
-        <div style={S({ flex: 1, background: 'rgba(255,255,255,.92)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 6px 18px rgba(76,64,150,.1)' })}>
-          <div style={S({ font: "800 11px/1 'Gothic A1'", color: 'rgba(46,42,77,.48)' })}>부스 추천 슬라임</div>
-          <div style={S({ marginTop: 8, fontFamily: "'Jua',sans-serif", fontSize: 16, color: INK })}>{res.recipe}</div>
         </div>
       </div>
 
+      
       <div style={S({ marginTop: 12, display: 'flex', gap: 10 })}>
         <button onClick={t.share} style={smallBtn}>결과 공유</button>
         <button onClick={t.saveImage} style={smallBtn}>이미지 저장</button>
-        <button onClick={t.restart} style={{ ...smallBtn, flex: 'none', padding: '15px 16px' }}>다시</button>
+      </div>
+
+      <div style={S({ marginTop: 12, display: 'flex', gap: 10 })}>
+        <button onClick={t.restart} style={{ ...smallBtn, flex: '1', padding: '15px 16px' }}>다시 검사하기</button>
       </div>
 
       <div style={S({ marginTop: 30, display: 'flex', alignItems: 'center', gap: 10 })}>
@@ -382,15 +385,6 @@ function Result({ t }: { t: TestApi }) {
           </span>
         </div>
 
-        <div style={S({ marginTop: 16, display: 'flex', alignItems: 'center', gap: 14 })}>
-          <div style={S({ flex: 'none', width: 82, height: 82, borderRadius: 12, background: 'repeating-conic-gradient(#2E2A4D 0 25%,#fff 0 50%) 0 0/16px 16px', border: '4px solid #fff', boxShadow: '0 0 0 2px rgba(108,92,231,.2)' })} />
-          <div>
-            <div style={S({ font: "800 12px/1.4 'Gothic A1'", color: INK })}>입장 코드 {t.entryCode}</div>
-            <div style={S({ marginTop: 5, font: "500 11.5px/1.55 'Gothic A1'", color: 'rgba(46,42,77,.55)' })}>
-              부스 입구에서 이 화면을 보여주면<br />재료를 하나 더 고를 수 있어!
-            </div>
-          </div>
-        </div>
       </div>
 
       <div style={S({ marginTop: 14, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 })}>
@@ -446,12 +440,11 @@ function Invite({ t }: { t: TestApi }) {
           </div>
         </div>
         <div style={S({ marginTop: 20, padding: 15, borderRadius: 18, background: 'linear-gradient(120deg,#EAF4FF,#F0E9FF)', font: "700 13px/1.6 'Gothic A1'", color: INK })}>
-          먼저 심리테스트를 하면 내 동물에 맞는 슬라임 레시피가 정해져. 부스에서 그대로 만들면 돼!
+          먼저 심리테스트를 하면 내 동물이 정해져. 동물에 따라 만들 수 있는 활동이 달라지니까, 테스트 먼저 하고 부스로 와!
         </div>
       </div>
       <div style={S({ marginTop: 14, display: 'flex', gap: 10 })}>
         <button onClick={t.start} style={S({ flex: 1, padding: 17, borderRadius: 18, background: 'linear-gradient(120deg,#6C5CE7,#5AC8E8)', color: '#fff', fontFamily: "'Jua',sans-serif", fontSize: 17, boxShadow: '0 8px 20px rgba(108,92,231,.3)' })}>테스트 먼저 하기</button>
-        <button onClick={t.goSignup} style={S({ flex: 'none', padding: '17px 18px', borderRadius: 18, background: 'rgba(255,255,255,.92)', font: "800 14px 'Gothic A1'", color: INK, boxShadow: '0 5px 14px rgba(76,64,150,.1)' })}>사전 신청</button>
       </div>
     </div>
   );
