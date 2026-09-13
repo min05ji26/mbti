@@ -26,6 +26,14 @@ interface State {
 
 const SIGNUP_KEY = 'unicorn_booth_signup';
 
+// 현재까지의 점수(scores)에서 "공동 1등"인 동물들을 전부 반환.
+// (문항 5개 · 문항당 1점이면 수학적으로 3파전은 불가능 — 최대 2파전까지만 나옴)
+function getLeaders(scores: Partial<Record<AnimalKey, number>>): AnimalKey[] {
+  const pairs = ORDER.map((k) => [k, scores[k] ?? 0] as const);
+  const top = Math.max(...pairs.map(([, v]) => v));
+  return pairs.filter(([, v]) => v === top).map(([k]) => k);
+}
+
 export function useTest() {
   const [state, setState] = useState<State>({
     screen: 'home',
@@ -83,7 +91,9 @@ export function useTest() {
           scores[k] = (scores[k] ?? 0) + (w[k] ?? 0);
         });
         const next = s.qi + 1;
-        if (next >= QUESTIONS.length) {
+
+        // 로딩 화면 보여주고 1.6초 뒤 최종 결과(1등 동물) 계산하는 공통 로직
+        const finish = () => {
           window.clearTimeout(loadTimer.current);
           loadTimer.current = window.setTimeout(() => {
             setState((cur) => {
@@ -95,8 +105,27 @@ export function useTest() {
             });
             window.scrollTo(0, 0);
           }, 1600);
+        };
+
+        // Q5(끝에서 두 번째 문항)까지 답한 직후: 1등이 동점이면 Q6(타이브레이커)로,
+        // 동점이 아니면 Q6 없이 바로 결과로 직행
+        if (next === QUESTIONS.length - 1) {
+          const leaders = getLeaders(scores);
+          if (leaders.length > 1) {
+            window.scrollTo(0, 0);
+            return { ...s, scores, qi: next };
+          }
+          finish();
           return { ...s, scores, screen: 'loading' };
         }
+
+        // 마지막 문항(Q6)까지 답한 직후: 동점 체크 없이 무조건 결과로
+        if (next === QUESTIONS.length) {
+          finish();
+          return { ...s, scores, screen: 'loading' };
+        }
+
+        // 그 외 문항: 그냥 다음 문항으로
         window.scrollTo(0, 0);
         return { ...s, scores, qi: next };
       });
@@ -178,7 +207,22 @@ export function useTest() {
   const derived = useMemo(() => {
     const res = TYPES[state.result ?? 'dog'];
     const homeChar = TYPES[ORDER[state.homeIdx]];
-    const question = QUESTIONS[state.qi] ?? QUESTIONS[0];
+
+    let question = QUESTIONS[state.qi] ?? QUESTIONS[0];
+    // Q6(마지막 문항)은 Q1~5가 동점이었을 때만 등장하는 타이브레이커라,
+    // 그 동점이었던 두 동물의 보기만 남겨서 무조건 승부가 갈리게 만듦
+    if (state.qi === QUESTIONS.length - 1) {
+      const leaders = getLeaders(state.scores);
+      if (leaders.length > 1) {
+        const narrowedOpts = question.opts.filter((opt) =>
+          (Object.keys(opt.w) as AnimalKey[]).some((k) => leaders.includes(k)),
+        );
+        if (narrowedOpts.length > 0) {
+          question = { ...question, opts: narrowedOpts };
+        }
+      }
+    }
+
     const compatKey = state.friend
       ? [state.result ?? 'dog', state.friend].sort().join('-')
       : null;
@@ -194,7 +238,7 @@ export function useTest() {
       compat,
       entryCode: `UNI-1024-${res.key.toUpperCase()}`,
     };
-  }, [state.result, state.homeIdx, state.qi, state.friend]);
+  }, [state.result, state.homeIdx, state.qi, state.friend, state.scores]);
 
   return {
     state,
