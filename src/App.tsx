@@ -359,13 +359,7 @@ function Result({ t }: { t: TestApi }) {
         </div>
       </div>
 
-      <div style={S({ marginTop: 12, display: 'flex', gap: 10 })}>
-        <div style={S({ flex: 'none', background: 'rgba(255,255,255,.92)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 6px 18px rgba(76,64,150,.1)' })}>
-          <div style={S({ font: "800 11px/1 'Gothic A1'", color: 'rgba(46,42,77,.48)' })}>환상의 짝꿍</div>
-          <AnimalCharacter kind={res.best} scale={0.27} />
-          <div style={S({ marginTop: 8, fontFamily: "'Jua',sans-serif", fontSize: 16, color: INK })}>{TYPES[res.best].name}</div>
-        </div>
-      </div>
+      <BestMatch t={t} />
 
       
       <div style={S({ marginTop: 12, display: 'flex', gap: 10 })}>
@@ -412,6 +406,32 @@ function Result({ t }: { t: TestApi }) {
         <NavCard title="부스 위치" sub="가는 길 보기" onClick={t.goMap} />
         <NavCard title="친구랑 비교" sub="우리 궁합은?" onClick={t.goCompare} />
         <NavCard title="유형 통계" sub="몇 명이 나랑 같을까" onClick={t.goStats} />
+      </div>
+    </div>
+  );
+}
+
+/* ================= 환상의 짝꿍 ================= */
+const bestCard: CSSProperties = { marginTop: 12, background: 'rgba(255,255,255,.92)', borderRadius: 20, boxShadow: '0 6px 18px rgba(76,64,150,.1)', animation: 'fadeup .5s .12s ease both' };
+const bestLabel: CSSProperties = { font: "800 11px/1 'Gothic A1'", color: 'rgba(46,42,77,.48)' };
+const bestText: CSSProperties = { margin: 0, font: "500 13.5px/1.65 'Gothic A1'", color: '#3D3860', wordBreak: 'keep-all', textWrap: 'pretty' };
+
+// 짝꿍 캐릭터 + 소개 문구
+function BestMatch({ t }: { t: TestApi }) {
+  const { res } = t;
+  const best = TYPES[res.best];
+  return (
+    <div style={S({ ...bestCard, padding: '16px 18px 18px 14px' })}>
+      <div style={S(bestLabel)}>환상의 짝꿍</div>
+      <div style={S({ marginTop: 6, display: 'flex', alignItems: 'center', gap: 14 })}>
+        <div style={S({ flex: 'none', width: 84, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' })}>
+          <AnimalCharacter kind={res.best} scale={0.3} />
+          <div style={S({ marginTop: 6, fontFamily: "'Jua',sans-serif", fontSize: 15, lineHeight: 1.25, color: INK, wordBreak: 'keep-all' })}>{best.name}</div>
+        </div>
+        <div style={S({ flex: 1, minWidth: 0 })}>
+          <div style={S({ font: "800 13px/1.3 'Gothic A1'", color: best.ink })}>이런 점이 잘 맞아!</div>
+          <p style={S({ ...bestText, marginTop: 6 })}>{res.bestTalk}</p>
+        </div>
       </div>
     </div>
   );
