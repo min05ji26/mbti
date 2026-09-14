@@ -1,7 +1,7 @@
 import { useState, type CSSProperties } from 'react';
 import AnimalCharacter from './components/AnimalCharacter';
 import { BOOTH } from './config';
-import { CHIPS, KW_BG, KW_INK, ORDER, QUESTIONS, STATS, TYPES } from './data';
+import { CHIPS, KW_BG, KW_INK, ORDER, STATS, TYPES } from './data';
 import { TestApi, useTest } from './useTest';
 
 const INK = '#2E2A4D';
@@ -173,7 +173,7 @@ function Home({ t }: { t: TestApi }) {
           내 성격이 동물이면<br />어떤 애일까?
         </h1>
         <p style={S({ margin: 0, font: "500 14px/1.6 'Gothic A1'", color: 'rgba(46,42,77,.6)' })}>
-          질문 {QUESTIONS.length}개, 결과로 부스에서 빠르게 체험할 수 있어
+           내 성격에 딱 맞는 동물 캐릭터가 뿅!<br />
         </p>
       </div>
 
@@ -223,27 +223,6 @@ function Home({ t }: { t: TestApi }) {
           })}
         >
           테스트 시작하기
-        </button>
-        <button
-          onClick={t.goInvite}
-          style={S({
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 10,
-            width: '100%',
-            padding: '14px 16px',
-            borderRadius: 18,
-            background: 'rgba(255,255,255,.66)',
-            border: '1.5px dashed rgba(108,92,231,.34)',
-            textAlign: 'left',
-          })}
-        >
-          <span style={S({ display: 'flex', flexDirection: 'column', gap: 2 })}>
-            <span style={S({ font: "800 13px/1.3 'Gothic A1'", color: INK })}>{BOOTH.boothDate}, 슬라임 부스로 초대할게 🎪</span>
-            <span style={S({ font: "500 11.5px/1.3 'Gothic A1'", color: 'rgba(46,42,77,.55)' })}>초대장 먼저 보기</span>
-          </span>
-          <span style={S({ fontSize: 17, color: '#6C5CE7' })}>›</span>
         </button>
       </div>
     </div>

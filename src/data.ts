@@ -22,7 +22,7 @@ export interface AnimalType {
 export const TYPES: Record<AnimalKey, AnimalType> = {
   dog: {
     key: 'dog',
-    species: '🐶 골든 리트리버',
+    species: '골든 리트리버',
     name: '번개 강아지 일렉',
     tint: '#FFF2E0',
     ink: '#C07A2E',
@@ -37,7 +37,7 @@ export const TYPES: Record<AnimalKey, AnimalType> = {
   },
   cat: {
     key: 'cat',
-    species: '🐱 고양이',
+    species: '고양이',
     name: '설계냥 아키',
     tint: '#F1ECFF',
     ink: '#6C5CE7',
@@ -52,7 +52,7 @@ export const TYPES: Record<AnimalKey, AnimalType> = {
   },
   rabbit: {
     key: 'rabbit',
-    species: '🐰 토끼',
+    species: '토끼',
     name: '마음토끼 모아',
     tint: '#FFEFF6',
     ink: '#C4568B',
@@ -67,7 +67,7 @@ export const TYPES: Record<AnimalKey, AnimalType> = {
   },
   fox: {
     key: 'fox',
-    species: '🦊 여우',
+    species: '여우',
     name: '설계여우 코디',
     tint: '#E6F6FD',
     ink: '#2C7FA8',

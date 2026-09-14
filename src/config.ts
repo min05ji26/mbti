@@ -5,8 +5,8 @@ export const BOOTH = {
   orgName: '유니콘',
   boothName: '부스 이름',
   boothDate: '10월 24일',
-  boothTime: '시간 미정',
-  boothPlace: '장소 미정',
+  boothTime: '11:00~16:00',
+  boothPlace: '앨리웨이',
   freebie: '굿즈 키링',
 };
 
