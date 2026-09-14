@@ -359,11 +359,7 @@ function Result({ t }: { t: TestApi }) {
         </div>
       </div>
 
-      {/* TODO 시안 비교용 — 하나 고르면 다른 하나와 시안 라벨 삭제 */}
-      <DraftLabel>시안 1 · 설명 문구</DraftLabel>
-      <BestMatchText t={t} />
-      <DraftLabel>시안 3 · 하트로 잇기</DraftLabel>
-      <BestMatchPair t={t} />
+      <BestMatch t={t} />
 
       
       <div style={S({ marginTop: 12, display: 'flex', gap: 10 })}>
@@ -415,40 +411,13 @@ function Result({ t }: { t: TestApi }) {
   );
 }
 
-/* ================= 환상의 짝꿍 시안 ================= */
-function DraftLabel({ children }: { children: string }) {
-  return (
-    <div style={S({ marginTop: 16, font: "800 11px/1 ui-monospace,Menlo,monospace", color: '#E0457B' })}>{children}</div>
-  );
-}
-
-const bestCard: CSSProperties = { marginTop: 8, background: 'rgba(255,255,255,.92)', borderRadius: 20, boxShadow: '0 6px 18px rgba(76,64,150,.1)', animation: 'fadeup .5s .12s ease both' };
+/* ================= 환상의 짝꿍 ================= */
+const bestCard: CSSProperties = { marginTop: 12, background: 'rgba(255,255,255,.92)', borderRadius: 20, boxShadow: '0 6px 18px rgba(76,64,150,.1)', animation: 'fadeup .5s .12s ease both' };
 const bestLabel: CSSProperties = { font: "800 11px/1 'Gothic A1'", color: 'rgba(46,42,77,.48)' };
 const bestText: CSSProperties = { margin: 0, font: "500 13.5px/1.65 'Gothic A1'", color: '#3D3860', wordBreak: 'keep-all', textWrap: 'pretty' };
 
-// 시안 1: 짝꿍 캐릭터 + 소개 문구
-function BestMatchText({ t }: { t: TestApi }) {
-  const { res } = t;
-  const best = TYPES[res.best];
-  return (
-    <div style={S({ ...bestCard, padding: '16px 18px 18px 14px' })}>
-      <div style={S(bestLabel)}>환상의 짝꿍</div>
-      <div style={S({ marginTop: 6, display: 'flex', alignItems: 'center', gap: 14 })}>
-        <div style={S({ flex: 'none', width: 84, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' })}>
-          <AnimalCharacter kind={res.best} scale={0.3} />
-          <div style={S({ marginTop: 6, fontFamily: "'Jua',sans-serif", fontSize: 15, lineHeight: 1.25, color: INK, wordBreak: 'keep-all' })}>{best.name}</div>
-        </div>
-        <div style={S({ flex: 1, minWidth: 0 })}>
-          <div style={S({ font: "800 13px/1.3 'Gothic A1'", color: best.ink })}>이런 점이 잘 맞아!</div>
-          <p style={S({ ...bestText, marginTop: 6 })}>{res.bestTalk}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// 시안 3: 내 캐릭터 💕 짝꿍 캐릭터 + 소개 문구
-function BestMatchPair({ t }: { t: TestApi }) {
+// 내 캐릭터 💕 짝꿍 캐릭터 + 소개 문구
+function BestMatch({ t }: { t: TestApi }) {
   const { res } = t;
   const best = TYPES[res.best];
   const who = (type: typeof res, tag: string) => (
