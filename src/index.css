@@ -5,7 +5,7 @@ body {
 }
 
 body {
-  background: #edeafb;
+  background: #e9ddff;
   font-family: 'Gothic A1', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
@@ -32,6 +32,182 @@ button {
 
 input {
   font-family: inherit;
+}
+
+/* ---- 리디자인: 스티커 카드 스타일 ---- */
+.page-bg {
+  background-color: #e9ddff;
+  background-image: radial-gradient(rgba(31, 27, 58, 0.12) 1.4px, transparent 1.4px);
+  background-size: 22px 22px;
+}
+
+.dots {
+  background-image: radial-gradient(rgba(31, 27, 58, 0.08) 1.2px, transparent 1.2px);
+  background-size: 18px 18px;
+}
+
+/* 넓은 화면에서만 앱 테두리 표시 (모바일에선 화면 끝에 선이 생기지 않게) */
+@media (min-width: 460px) {
+  .frame {
+    border-inline: 2.5px solid #1f1b3a;
+  }
+}
+
+/* 스티커 버튼 누르는 느낌: 그림자 쪽으로 쑥 들어감 */
+.press {
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+@media (hover: hover) {
+  .press:hover {
+    filter: brightness(1.04);
+  }
+}
+.press:active {
+  transform: translate(3px, 3px) !important;
+  box-shadow: 0 0 0 #1f1b3a !important;
+}
+.press:focus-visible {
+  outline: 3px solid #8fd8ff;
+  outline-offset: 3px;
+}
+
+/* 결과 카드 위를 지나가는 홀로그램 빛 */
+.holo {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    110deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.55) 46%,
+    rgba(255, 255, 255, 0.15) 52%,
+    transparent 60%
+  );
+  background-size: 260% 100%;
+  animation: shimmer 3.4s ease-in-out 1s infinite;
+}
+
+@keyframes cardin {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes flipin {
+  0% {
+    opacity: 0;
+    transform: rotateY(95deg) scale(0.9);
+  }
+  60% {
+    opacity: 1;
+    transform: rotateY(-12deg) scale(1.02);
+  }
+  100% {
+    transform: rotateY(0) scale(1);
+  }
+}
+@keyframes shake {
+  0%,
+  100% {
+    transform: rotate(-4deg) translateY(0);
+  }
+  25% {
+    transform: rotate(5deg) translateY(-6px);
+  }
+  50% {
+    transform: rotate(-3deg) translateY(0);
+  }
+  75% {
+    transform: rotate(4deg) translateY(-4px);
+  }
+}
+@keyframes shimmer {
+  0% {
+    background-position: 130% 0;
+  }
+  60%,
+  100% {
+    background-position: -30% 0;
+  }
+}
+
+/* 초대장 편지 팝업 */
+@keyframes backdropin {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes letterin {
+  0% {
+    opacity: 0;
+    transform: translateY(90px) scale(0.5) rotate(-14deg);
+  }
+  65% {
+    opacity: 1;
+    transform: translateY(-10px) scale(1.05) rotate(4deg);
+  }
+  100% {
+    transform: translateY(0) scale(1) rotate(0);
+  }
+}
+@keyframes wobble {
+  0%,
+  100% {
+    transform: rotate(-5deg) translateY(0);
+  }
+  50% {
+    transform: rotate(5deg) translateY(-8px);
+  }
+}
+@keyframes envpop {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  40% {
+    transform: scale(1.12) rotate(-4deg);
+  }
+  100% {
+    transform: scale(0.3) translateY(60px);
+    opacity: 0;
+  }
+}
+@keyframes ticketup {
+  0% {
+    opacity: 0;
+    transform: translateY(120px) scale(0.85) rotate(4deg);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(-8px) scale(1.02) rotate(-1deg);
+  }
+  100% {
+    transform: translateY(0) scale(1) rotate(0);
+  }
+}
+@keyframes nudge {
+  0%,
+  70%,
+  100% {
+    transform: rotate(0);
+  }
+  78% {
+    transform: rotate(-18deg);
+  }
+  86% {
+    transform: rotate(16deg);
+  }
+  94% {
+    transform: rotate(-8deg);
+  }
 }
 
 /* ---- keyframes ported from the design ---- */

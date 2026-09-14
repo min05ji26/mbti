@@ -18,6 +18,8 @@ interface State {
   homeIdx: number;
   result: AnimalKey | null;
   friend: AnimalKey | null;
+  // 결과 화면 초대장 편지를 이미 한 번 띄웠는지 (자동 팝업은 결과당 한 번만)
+  inviteSeen: boolean;
   toast: string;
   cardPreview: string | null;
 }
@@ -38,6 +40,7 @@ export function useTest() {
     homeIdx: 0,
     result: null,
     friend: null,
+    inviteSeen: false,
     toast: '',
     cardPreview: null,
   });
@@ -147,7 +150,7 @@ export function useTest() {
   }, []);
 
   const start = useCallback(() => {
-    setState((s) => ({ ...s, qi: 0, scores: {}, result: null, screen: 'quiz' }));
+    setState((s) => ({ ...s, qi: 0, scores: {}, result: null, inviteSeen: false, screen: 'quiz' }));
     window.scrollTo(0, 0);
   }, []);
 
@@ -158,6 +161,7 @@ export function useTest() {
       scores: {},
       result: null,
       friend: null,
+      inviteSeen: false,
       screen: 'home',
     }));
     window.scrollTo(0, 0);
@@ -292,6 +296,7 @@ export function useTest() {
     state,
     ...derived,
     setFriend: (k: AnimalKey) => patch({ friend: k }),
+    seeInvite: () => patch({ inviteSeen: true }),
     pick,
     back,
     go,
