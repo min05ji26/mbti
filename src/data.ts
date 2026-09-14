@@ -15,6 +15,8 @@ export interface AnimalType {
   desc: string;
   keywords: string[];
   best: AnimalKey;
+  // 결과 화면 '환상의 짝꿍' 말풍선 — 결과로 나온 내가 짝꿍(best)을 소개하는 말
+  bestTalk: string;
   recipe: string;
   share: string;
 }
@@ -32,6 +34,7 @@ export const TYPES: Record<AnimalKey, AnimalType> = {
     desc: '사람들과 어울리는 걸 좋아하고 분위기를 밝게 만드는 타입. 처음 만난 사람과도 금방 친해지는 편이고, 친구의 기분도 잘 살펴주는 편이에요.',
     keywords: ['친화력', '활발함', '긍정', '공감'],
     best: 'cat',
+    bestTalk: '아키는 차분하고 자기 생각이 확실해서 내가 너무 들떠 있을 때 중심을 잡아줘. 같이 있으면 마음이 편안해져!',
     recipe: '번개 크런치 슬라임',
     share: '31%',
   },
@@ -47,6 +50,7 @@ export const TYPES: Record<AnimalKey, AnimalType> = {
     desc: '남들이 뭐라고 하든 자신의 취향과 속도를 중요하게 생각하는 타입. 혼자만의 시간도 잘 즐기고, 좋아하는 것이 확실한 편이에요.',
     keywords: ['독립적', '자기주관', '취향', '여유'],
     best: 'dog',
+    bestTalk: '일렉이는 밝고 씩씩해서 내가 조용히 있어도 먼저 다가와줘. 덕분에 나도 자연스럽게 마음을 열게 돼!',
     recipe: '투명 클리어 슬라임',
     share: '21%',
   },
@@ -62,6 +66,7 @@ export const TYPES: Record<AnimalKey, AnimalType> = {
     desc: '상대방의 감정을 잘 살피고 주변 사람들을 세심하게 챙기는 타입. 친구와의 관계에서 배려와 조화를 중요하게 생각해요.',
     keywords: ['배려', '공감', '섬세함', '안정'],
     best: 'fox',
+    bestTalk: '코디가 엉뚱한 걸 떠올리면 나는 옆에서 끝까지 응원해줘. 둘이 합치면 멋진 게 뚝딱 완성돼!',
     recipe: '폭신 구름 슬라임',
     share: '26%',
   },
@@ -77,6 +82,7 @@ export const TYPES: Record<AnimalKey, AnimalType> = {
     desc: '새로운 아이디어와 경험을 좋아하고, 남들과 조금 다른 방법을 찾는 타입. "왜?" "만약에?"라는 생각이 많아서 예상하지 못한 아이디어를 잘 떠올려요.',
     keywords: ['호기심', '창의력', '도전', '유연함'],
     best: 'rabbit',
+    bestTalk: '모아는 내 엉뚱한 생각도 끝까지 귀 기울여 들어줘. 덕분에 마음 놓고 새로운 걸 도전해!',
     recipe: '야광 오로라 슬라임',
     share: '22%',
   },
