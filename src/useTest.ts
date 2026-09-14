@@ -8,10 +8,8 @@ export type Screen =
   | 'loading'
   | 'result'
   | 'invite'
-  | 'signup'
   | 'map'
-  | 'compare'
-  | 'stats';
+  | 'compare';
 
 interface State {
   screen: Screen;
@@ -20,13 +18,9 @@ interface State {
   homeIdx: number;
   result: AnimalKey | null;
   friend: AnimalKey | null;
-  name: string;
-  school: string;
   toast: string;
   cardPreview: string | null;
 }
-
-const SIGNUP_KEY = 'unicorn_booth_signup';
 
 // 현재까지의 점수(scores)에서 "공동 1등"인 동물들을 전부 반환.
 // (문항 5개 · 문항당 1점이면 수학적으로 3파전은 불가능 — 최대 2파전까지만 나옴)
@@ -44,8 +38,6 @@ export function useTest() {
     homeIdx: 0,
     result: null,
     friend: null,
-    name: '',
-    school: '',
     toast: '',
     cardPreview: null,
   });
@@ -170,25 +162,6 @@ export function useTest() {
     }));
     window.scrollTo(0, 0);
   }, []);
-
-  const submitSignup = useCallback(() => {
-    setState((s) => {
-      if (!s.name.trim()) {
-        toast('이름을 적어줘!');
-        return s;
-      }
-      try {
-        localStorage.setItem(
-          SIGNUP_KEY,
-          JSON.stringify({ name: s.name, school: s.school, type: s.result }),
-        );
-      } catch {
-        /* private mode / storage disabled — fine */
-      }
-      toast('신청 완료! 부스에서 만나 🎉');
-      return s;
-    });
-  }, [toast]);
 
   // 결과가 나오면 카드 이미지를 미리 만들어 둠 — iOS는 버튼 탭 직후에 바로 공유 시트를
   // 열어야 해서, 탭한 뒤에 그리기 시작하면 시간이 걸려 공유가 거부될 수 있음
@@ -318,20 +291,15 @@ export function useTest() {
   return {
     state,
     ...derived,
-    setName: (v: string) => patch({ name: v }),
-    setSchool: (v: string) => patch({ school: v }),
     setFriend: (k: AnimalKey) => patch({ friend: k }),
     pick,
     back,
     go,
     goInvite: () => go('invite'),
-    goSignup: () => go('signup'),
     goMap: () => go('map'),
     goCompare: () => go('compare'),
-    goStats: () => go('stats'),
     start,
     restart,
-    submitSignup,
     share,
     saveImage,
     closeCardPreview,

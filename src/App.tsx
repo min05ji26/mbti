@@ -1,7 +1,7 @@
 import { useState, type CSSProperties } from 'react';
 import AnimalCharacter from './components/AnimalCharacter';
 import { BOOTH } from './config';
-import { CHIPS, KW_BG, KW_INK, ORDER, STATS, TYPES } from './data';
+import { CHIPS, KW_BG, KW_INK, ORDER, TYPES } from './data';
 import { TestApi, useTest } from './useTest';
 
 const INK = '#2E2A4D';
@@ -55,10 +55,8 @@ export default function App() {
         {screen === 'loading' && <Loading />}
         {screen === 'result' && <Result t={t} />}
         {screen === 'invite' && <Invite t={t} />}
-        {screen === 'signup' && <Signup t={t} />}
         {screen === 'map' && <MapScreen t={t} />}
         {screen === 'compare' && <Compare t={t} />}
-        {screen === 'stats' && <Stats t={t} />}
 
         {t.state.cardPreview && (
           <div
@@ -334,7 +332,6 @@ function Fact({ label, value }: { label: string; value: string }) {
 function Result({ t }: { t: TestApi }) {
   const { res } = t;
   const smallBtn: CSSProperties = { flex: 1, padding: 15, borderRadius: 18, background: 'rgba(255,255,255,.9)', font: "800 13.5px 'Gothic A1'", color: INK, boxShadow: '0 5px 14px rgba(76,64,150,.1)' };
-  const navCard: CSSProperties = { display: 'flex', flexDirection: 'column', gap: 4, padding: 16, borderRadius: 20, textAlign: 'left' };
 
   return (
     <div style={S({ position: 'relative', padding: '26px 20px 36px' })}>
@@ -399,13 +396,8 @@ function Result({ t }: { t: TestApi }) {
       </div>
 
       <div style={S({ marginTop: 14, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 })}>
-        <button onClick={t.goSignup} style={{ ...navCard, background: 'linear-gradient(125deg,#6C5CE7,#8E7BFF)', color: '#fff', boxShadow: '0 8px 20px rgba(108,92,231,.3)' }}>
-          <span style={S({ fontFamily: "'Jua',sans-serif", fontSize: 16 })}>사전 신청</span>
-          <span style={S({ font: "500 11px 'Gothic A1'", opacity: 0.8 })}>줄 안 서고 바로 입장</span>
-        </button>
         <NavCard title="부스 위치" sub="가는 길 보기" onClick={t.goMap} />
         <NavCard title="친구랑 비교" sub="우리 궁합은?" onClick={t.goCompare} />
-        <NavCard title="유형 통계" sub="몇 명이 나랑 같을까" onClick={t.goStats} />
       </div>
     </div>
   );
@@ -487,37 +479,6 @@ function Invite({ t }: { t: TestApi }) {
   );
 }
 
-/* ================= 사전 신청 ================= */
-function Signup({ t }: { t: TestApi }) {
-  const { res } = t;
-  const input: CSSProperties = { padding: '14px 15px', borderRadius: 14, border: '2px solid rgba(108,92,231,.16)', background: '#FAF9FF', font: "600 15px 'Gothic A1'", color: INK, outline: 'none' };
-  return (
-    <div style={S({ position: 'relative', minHeight: '100vh', padding: '22px 20px 30px' })}>
-      <button onClick={t.back} style={backBtn}>‹</button>
-      <h2 style={S({ margin: '18px 0 6px', fontFamily: "'Jua',sans-serif", fontSize: 28, color: INK })}>사전 신청하기</h2>
-      <p style={S({ margin: '0 0 20px', font: "500 13.5px/1.6 'Gothic A1'", color: 'rgba(46,42,77,.6)' })}>미리 신청하면 재료가 떨어져도 네 몫은 남겨둘게!</p>
-
-      <div style={S({ background: 'rgba(255,255,255,.94)', borderRadius: 24, padding: 20, boxShadow: '0 8px 24px rgba(76,64,150,.12)', display: 'flex', flexDirection: 'column', gap: 16 })}>
-        <label style={S({ display: 'flex', flexDirection: 'column', gap: 8 })}>
-          <span style={S({ font: "800 12px 'Gothic A1'", color: 'rgba(46,42,77,.55)' })}>이름</span>
-          <input value={t.state.name} onChange={(e) => t.setName(e.target.value)} placeholder="예) 김유니" style={input} />
-        </label>
-        <label style={S({ display: 'flex', flexDirection: 'column', gap: 8 })}>
-          <span style={S({ font: "800 12px 'Gothic A1'", color: 'rgba(46,42,77,.55)' })}>학교 / 학년</span>
-          <input value={t.state.school} onChange={(e) => t.setSchool(e.target.value)} placeholder="예) 유니초등학교 5학년" style={input} />
-        </label>
-        <div style={S({ display: 'flex', alignItems: 'center', gap: 11, padding: '12px 14px', borderRadius: 16, background: res.tint })}>
-          <AnimalCharacter kind={res.key} scale={0.22} />
-          <span style={S({ font: "700 12.5px/1.5 'Gothic A1'", color: INK })}>내 유형 · {t.state.result ? res.name : '아직 테스트 전'}</span>
-        </div>
-      </div>
-
-      <button onClick={t.submitSignup} style={S({ marginTop: 14, width: '100%', padding: 18, borderRadius: 20, background: 'linear-gradient(120deg,#6C5CE7,#8E7BFF 60%,#5AC8E8)', color: '#fff', fontFamily: "'Jua',sans-serif", fontSize: 18, boxShadow: '0 8px 20px rgba(108,92,231,.3)' })}>신청 완료하기</button>
-      <p style={S({ margin: '12px 4px 0', font: "500 11.5px/1.6 'Gothic A1'", color: 'rgba(46,42,77,.45)' })}>입력한 정보는 이 휴대폰에만 저장돼. 부스에서 이름만 말해주면 돼!</p>
-    </div>
-  );
-}
-
 /* ================= 지도 ================= */
 function MapScreen({ t }: { t: TestApi }) {
   return (
@@ -586,38 +547,6 @@ function Compare({ t }: { t: TestApi }) {
           <div style={S({ marginTop: 16, padding: 14, borderRadius: 16, background: 'linear-gradient(120deg,#EAF4FF,#F3E9FF)', font: "700 12.5px/1.6 'Gothic A1'", color: INK, textAlign: 'center' })}>같이 오면 추천: {compat.g}</div>
         </div>
       )}
-    </div>
-  );
-}
-
-/* ================= 통계 ================= */
-function Stats({ t }: { t: TestApi }) {
-  return (
-    <div style={S({ position: 'relative', minHeight: '100vh', padding: '22px 20px 30px' })}>
-      <button onClick={t.back} style={backBtn}>‹</button>
-      <h2 style={S({ margin: '18px 0 6px', fontFamily: "'Jua',sans-serif", fontSize: 28, color: INK })}>유형 통계</h2>
-      <p style={S({ margin: '0 0 18px', font: "500 13.5px/1.6 'Gothic A1'", color: 'rgba(46,42,77,.6)' })}>
-        지금까지 1,284명이 테스트했어 <span style={S({ fontFamily: 'ui-monospace,Menlo,monospace', fontSize: 11, opacity: 0.6 })}>(예시 숫자)</span>
-      </p>
-      <div style={S({ background: 'rgba(255,255,255,.94)', borderRadius: 24, padding: 20, boxShadow: '0 8px 24px rgba(76,64,150,.12)', display: 'flex', flexDirection: 'column', gap: 16 })}>
-        {STATS.map((s) => {
-          const type = TYPES[s.k];
-          return (
-            <div key={s.k} style={S({ display: 'flex', flexDirection: 'column', gap: 7 })}>
-              <div style={S({ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' })}>
-                <span style={S({ font: "700 13.5px 'Gothic A1'", color: INK })}>{type.name}</span>
-                <span style={S({ font: "800 13px 'Gothic A1'", color: 'rgba(46,42,77,.5)' })}>{s.p}</span>
-              </div>
-              <div style={S({ height: 14, borderRadius: 999, background: 'rgba(108,92,231,.1)', overflow: 'hidden' })}>
-                <div style={S({ height: '100%', width: s.p, borderRadius: 999, background: type.color, transition: 'width .6s ease' })} />
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      <div style={S({ marginTop: 14, padding: 16, borderRadius: 20, background: 'rgba(255,255,255,.7)', font: "600 12.5px/1.7 'Gothic A1'", color: 'rgba(46,42,77,.65)' })}>
-        부스에서는 유형별로 테이블이 나뉘어! 같은 동물끼리 앉아서 만들 수도 있어.
-      </div>
     </div>
   );
 }

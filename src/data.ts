@@ -232,10 +232,3 @@ export const COMPAT: Record<string, Compat> = {
     g: '레시피 무시하고 섞어보기',
   },
 };
-
-export const STATS: { k: AnimalKey; p: string }[] = [
-  { k: 'dog', p: '31%' },
-  { k: 'rabbit', p: '26%' },
-  { k: 'fox', p: '22%' },
-  { k: 'cat', p: '21%' },
-];
