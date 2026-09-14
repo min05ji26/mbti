@@ -60,22 +60,60 @@ export default function App() {
         {screen === 'compare' && <Compare t={t} />}
         {screen === 'stats' && <Stats t={t} />}
 
+        {t.state.cardPreview && (
+          <div
+            onClick={t.closeCardPreview}
+            style={S({
+              position: 'fixed',
+              inset: 0,
+              zIndex: 60,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 14,
+              padding: '24px 20px',
+              background: 'rgba(24,21,44,.9)',
+              backdropFilter: 'blur(6px)',
+              WebkitBackdropFilter: 'blur(6px)',
+              animation: 'fadeup .25s ease both',
+            })}
+          >
+            <div style={S({ font: "800 14.5px/1.5 'Gothic A1'", color: '#fff', textAlign: 'center' })}>
+              이미지를 꾹 눌러서 사진첩에 저장해줘 📷
+            </div>
+            <img
+              src={t.state.cardPreview}
+              alt="내 결과 카드"
+              onClick={(e) => e.stopPropagation()}
+              style={S({ display: 'block', maxWidth: 'min(100%, 340px)', maxHeight: 'calc(100dvh - 150px)', objectFit: 'contain', borderRadius: 18, boxShadow: '0 16px 40px rgba(0,0,0,.35)', WebkitTouchCallout: 'default' })}
+            />
+            <button onClick={t.closeCardPreview} style={S({ padding: '12px 28px', borderRadius: 999, background: 'rgba(255,255,255,.92)', font: "800 13.5px 'Gothic A1'", color: INK })}>
+              닫기
+            </button>
+          </div>
+        )}
+
         {t.state.toast && (
           <div
+            role="status"
             style={S({
               position: 'fixed',
               left: '50%',
-              bottom: 34,
-              transform: 'translateX(-50%)',
-              padding: '14px 20px',
+              top: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: 'max-content',
+              maxWidth: 'calc(100vw - 48px)',
+              padding: '16px 24px',
               borderRadius: 999,
               background: INK,
               color: '#F3F0FF',
-              font: "700 13.5px 'Gothic A1'",
+              font: "700 14.5px/1.4 'Gothic A1'",
+              textAlign: 'center',
               boxShadow: '0 10px 24px rgba(46,42,77,.32)',
               animation: 'toastin .25s ease both',
-              zIndex: 50,
-              whiteSpace: 'nowrap',
+              zIndex: 70,
+              pointerEvents: 'none',
             })}
           >
             {t.state.toast}
@@ -271,7 +309,7 @@ function Loading() {
         <div style={S({ width: 96, height: 88, background: 'linear-gradient(140deg,#A8E6FF,#C3B4F5)', animation: 'blobby 2.2s ease-in-out infinite', boxShadow: 'inset 10px 12px 0 rgba(255,255,255,.55)' })} />
       </div>
       <div style={S({ textAlign: 'center' })}>
-        <div style={S({ fontFamily: "'Jua',sans-serif", fontSize: 22, color: INK })}>슬라임 반죽하는 중…</div>
+        <div style={S({ fontFamily: "'Jua',sans-serif", fontSize: 22, color: INK })}>내 캐릭터 생성하는 중…</div>
         <div style={S({ marginTop: 6, font: "500 13px 'Gothic A1'", color: 'rgba(46,42,77,.55)' })}>{phrase}</div>
       </div>
     </div>

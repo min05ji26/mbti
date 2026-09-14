@@ -1,17 +1,8 @@
 import type { AnimalKey } from '../data';
-import dogImg from '../assets/animals/dog.png';
-import catImg from '../assets/animals/cat.png';
-import rabbitImg from '../assets/animals/rabbit.png';
-import foxImg from '../assets/animals/fox.png';
+import { ANIMAL_IMAGES as IMAGES } from '../animalImages';
 
-// 실제 일러스트 (배경 제거 완료). intrinsic box는 기존 CSS 아트와 동일하게 200x250 유지 —
+// intrinsic box는 기존 CSS 아트와 동일하게 200x250 유지 —
 // 그래서 App.tsx의 <AnimalCharacter kind={...} scale={...}> 쓰던 방식은 그대로 다 작동함.
-const IMAGES: Record<AnimalKey, string> = {
-  dog: dogImg,
-  cat: catImg,
-  rabbit: rabbitImg,
-  fox: foxImg,
-};
 
 export default function AnimalCharacter({
   kind,

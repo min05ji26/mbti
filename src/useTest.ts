@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AnimalKey, COMPAT, ORDER, QUESTIONS, TYPES } from './data';
+import { AnimalKey, AnimalType, COMPAT, ORDER, QUESTIONS, TYPES } from './data';
+import { makeResultCard, saveCard, shareCard } from './resultCard';
 
 export type Screen =
   | 'home'
@@ -22,6 +23,7 @@ interface State {
   name: string;
   school: string;
   toast: string;
+  cardPreview: string | null;
 }
 
 const SIGNUP_KEY = 'unicorn_booth_signup';
@@ -45,6 +47,7 @@ export function useTest() {
     name: '',
     school: '',
     toast: '',
+    cardPreview: null,
   });
 
   const patch = useCallback((p: Partial<State> | ((s: State) => Partial<State>)) => {
@@ -187,22 +190,94 @@ export function useTest() {
     });
   }, [toast]);
 
-  const share = useCallback(() => {
-    const res = TYPES[state.result ?? 'dog'];
-    const txt = `내 성격 동물은 「${res.name}」! 너도 해봐`;
-    if (navigator.share) {
-      navigator
-        .share({ title: '내 성격 동물 테스트', text: txt, url: location.href })
-        .catch(() => {});
-      return;
-    }
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(`${txt} ${location.href}`).catch(() => {});
-    }
-    toast('링크를 복사했어!');
-  }, [state.result, toast]);
+  // 결과가 나오면 카드 이미지를 미리 만들어 둠 — iOS는 버튼 탭 직후에 바로 공유 시트를
+  // 열어야 해서, 탭한 뒤에 그리기 시작하면 시간이 걸려 공유가 거부될 수 있음
+  const cardRef = useRef<{ key: AnimalKey; blob: Promise<Blob> } | null>(null);
+  const busyRef = useRef(false);
 
-  const saveImage = useCallback(() => toast('결과 카드를 저장했어! 📷'), [toast]);
+  const ensureCard = useCallback((key: AnimalKey) => {
+    if (cardRef.current?.key !== key) {
+      const blob = makeResultCard(TYPES[key]);
+      blob.catch(() => {});
+      cardRef.current = { key, blob };
+    }
+    return cardRef.current.blob;
+  }, []);
+
+  useEffect(() => {
+    if (state.result) ensureCard(state.result);
+  }, [state.result, ensureCard]);
+
+  const showCardPreview = useCallback((blob: Blob) => {
+    const url = URL.createObjectURL(blob);
+    setState((s) => {
+      if (s.cardPreview) URL.revokeObjectURL(s.cardPreview);
+      return { ...s, cardPreview: url };
+    });
+  }, []);
+
+  // 저장/공유 버튼 공통: 연타 막고, 카드 이미지 준비되면 fn 실행
+  const withCard = useCallback(
+    async (fn: (blob: Blob, filename: string, res: AnimalType) => Promise<void>) => {
+      if (busyRef.current) return;
+      busyRef.current = true;
+      const key = state.result ?? 'dog';
+      try {
+        let blob: Blob;
+        try {
+          blob = await ensureCard(key);
+        } catch {
+          cardRef.current = null;
+          toast('이미지를 만들지 못했어. 다시 눌러줘!');
+          return;
+        }
+        const res = TYPES[key];
+        await fn(blob, `내-성격-동물_${res.name.replace(/\s+/g, '-')}.png`, res);
+      } finally {
+        busyRef.current = false;
+      }
+    },
+    [state.result, ensureCard, toast],
+  );
+
+  const share = useCallback(
+    () =>
+      withCard(async (blob, filename, res) => {
+        const text = `내 성격 동물은 「${res.name}」! 너도 해봐 ${location.href}`;
+        const outcome = await shareCard(blob, filename, text);
+        if (outcome !== 'unsupported') return;
+
+        // 이미지 공유가 안 되는 브라우저: 링크는 복사하고, 이미지는 저장해서 직접 올릴 수 있게
+        const copied = await navigator.clipboard?.writeText(text).then(
+          () => true,
+          () => false,
+        );
+        const saved = await saveCard(blob, filename);
+        if (saved === 'saved') toast(copied ? '이미지를 저장하고 링크를 복사했어!' : '결과 카드를 저장했어! 📷');
+        if (saved === 'preview') {
+          showCardPreview(blob);
+          if (copied) toast('링크를 복사했어!');
+        }
+      }),
+    [withCard, showCardPreview, toast],
+  );
+
+  const saveImage = useCallback(
+    () =>
+      withCard(async (blob, filename) => {
+        const outcome = await saveCard(blob, filename);
+        if (outcome === 'saved') toast('결과 카드를 저장했어! 📷');
+        if (outcome === 'preview') showCardPreview(blob);
+      }),
+    [withCard, showCardPreview, toast],
+  );
+
+  const closeCardPreview = useCallback(() => {
+    setState((s) => {
+      if (s.cardPreview) URL.revokeObjectURL(s.cardPreview);
+      return { ...s, cardPreview: null };
+    });
+  }, []);
 
   const derived = useMemo(() => {
     const res = TYPES[state.result ?? 'dog'];
@@ -259,6 +334,7 @@ export function useTest() {
     submitSignup,
     share,
     saveImage,
+    closeCardPreview,
     toast,
   };
 }
