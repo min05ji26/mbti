@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { AnimalKey, AnimalType, COMPAT, ORDER, QUESTIONS, TYPES } from './data';
 import { makeResultCard, saveCard, shareCard } from './resultCard';
 
@@ -21,6 +22,8 @@ interface State {
   // 결과 화면 초대장 편지를 이미 한 번 띄웠는지 (자동 팝업은 결과당 한 번만)
   inviteSeen: boolean;
   toast: string;
+  // 공유 시트/다운로드 창에 가리지 않게 화면 위쪽에 띄우는 안내 토스트인지
+  toastTop: boolean;
   cardPreview: string | null;
 }
 
@@ -42,6 +45,7 @@ export function useTest() {
     friend: null,
     inviteSeen: false,
     toast: '',
+    toastTop: false,
     cardPreview: null,
   });
 
@@ -53,13 +57,18 @@ export function useTest() {
   const loadTimer = useRef<number | undefined>(undefined);
   const rotateTimer = useRef<number | undefined>(undefined);
 
-  const toast = useCallback((msg: string) => {
+  const toast = useCallback((msg: string, opts?: { top?: boolean; ms?: number }) => {
     window.clearTimeout(toastTimer.current);
-    setState((s) => ({ ...s, toast: msg }));
+    setState((s) => ({ ...s, toast: msg, toastTop: opts?.top ?? false }));
     toastTimer.current = window.setTimeout(
       () => setState((s) => ({ ...s, toast: '' })),
-      2200,
+      opts?.ms ?? 2200,
     );
+  }, []);
+
+  const hideToast = useCallback(() => {
+    window.clearTimeout(toastTimer.current);
+    setState((s) => ({ ...s, toast: '' }));
   }, []);
 
   const go = useCallback((screen: Screen) => {
@@ -242,11 +251,16 @@ export function useTest() {
   const saveImage = useCallback(
     () =>
       withCard(async (blob, filename) => {
-        const outcome = await saveCard(blob, filename);
-        if (outcome === 'saved') toast('결과 카드를 저장했어! 📷');
+        const outcome = await saveCard(blob, filename, () => {
+          // 아이폰 공유 시트가 뜨기 "직전"에 안내를 화면에 그려둔다.
+          // flushSync 없이 setState만 하면 시트가 먼저 떠서 안내를 못 보고 지나감.
+          flushSync(() => toast("여기서 '이미지 저장' 📷 을 눌러줘!", { top: true, ms: 7000 }));
+        });
+        if (outcome === 'saved') toast('사진첩에 저장했어! 📷');
+        if (outcome === 'cancelled') hideToast();
         if (outcome === 'preview') showCardPreview(blob);
       }),
-    [withCard, showCardPreview, toast],
+    [withCard, showCardPreview, toast, hideToast],
   );
 
   const closeCardPreview = useCallback(() => {

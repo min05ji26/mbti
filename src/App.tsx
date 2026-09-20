@@ -72,7 +72,8 @@ export default function App() {
         {t.state.toast && (
           <div
             role="status"
-            style={S({ position: 'fixed', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: 'max-content', maxWidth: 'calc(100vw - 48px)', padding: '16px 24px', borderRadius: 999, background: INK, color: CREAM, border: `2.5px solid ${INK}`, boxShadow: pop(5, PINK), font: "800 14.5px/1.4 'Gothic A1'", textAlign: 'center', animation: 'toastin .25s ease both', zIndex: 70, pointerEvents: 'none' })}
+            // toastTop: 공유 시트가 화면 아래쪽을 덮기 때문에, 저장 안내는 위쪽에 띄움
+            style={S({ position: 'fixed', left: '50%', ...(t.state.toastTop ? { top: 'calc(env(safe-area-inset-top, 0px) + 18px)', transform: 'translateX(-50%)' } : { top: '50%', transform: 'translate(-50%, -50%)' }), width: 'max-content', maxWidth: 'calc(100vw - 48px)', padding: '16px 24px', borderRadius: 999, background: INK, color: CREAM, border: `2.5px solid ${INK}`, boxShadow: pop(5, PINK), font: "800 14.5px/1.4 'Gothic A1'", textAlign: 'center', animation: 'toastin .25s ease both', zIndex: 70, pointerEvents: 'none' })}
           >
             {t.state.toast}
           </div>
@@ -89,12 +90,13 @@ function Sparkle({ style, delay = 0, size = 18, color = INK }: { style: CSSPrope
   );
 }
 
-function SubPage({ t, title, desc, children }: { t: TestApi; title: string; desc: string; children: ReactNode }) {
+// desc 는 없어도 됨 (없으면 제목 아래 설명 줄을 아예 안 그림)
+function SubPage({ t, title, desc, children }: { t: TestApi; title: string; desc?: string; children: ReactNode }) {
   return (
     <div style={S({ position: 'relative', minHeight: '100vh', padding: '20px 20px 34px' })}>
       <button className="press" onClick={t.back} aria-label="뒤로" style={sticker('#fff', { width: 42, height: 42, borderRadius: 14, boxShadow: pop(3), fontSize: 22, lineHeight: 1 })}>‹</button>
-      <h2 style={S({ margin: '20px 0 6px', fontFamily: JUA, fontSize: 31, color: INK })}>{title}</h2>
-      <p style={S({ margin: '0 0 22px', font: "600 14px/1.6 'Gothic A1'", color: 'rgba(31,27,58,.62)' })}>{desc}</p>
+      <h2 style={S({ margin: desc ? '20px 0 6px' : '20px 0 22px', fontFamily: JUA, fontSize: 31, color: INK })}>{title}</h2>
+      {desc && <p style={S({ margin: '0 0 22px', font: "600 14px/1.6 'Gothic A1'", color: 'rgba(31,27,58,.62)' })}>{desc}</p>}
       {children}
     </div>
   );
@@ -118,7 +120,15 @@ function Fact({ label, value }: { label: string; value: ReactNode }) {
   );
 }
 
-const ACTIVITIES = ['내 캐릭터의 집 만들기', '캐릭터에 맞는 슬라임 만들기', `다 하면 ${BOOTH.freebie} 증정!`];
+// 한 묶음 = 같은 색 불렛 (무드등/슬라임은 둘 중 택1이라 한 묶음)
+const ACTIVITIES: string[][] = [
+  ['무드등 집 만들기', '슬라임 만들며 코딩 체험해보기'],
+  [`다 하면 ${BOOTH.freebie} 증정!`],
+];
+
+function Bullet({ color }: { color: string }) {
+  return <span style={S({ flex: 'none', width: 10, height: 10, borderRadius: 3, border: `2px solid ${INK}`, background: color, transform: 'rotate(45deg)' })} />;
+}
 
 function BoothFacts() {
   return (
@@ -126,13 +136,17 @@ function BoothFacts() {
       <Fact label="언제" value={`${BOOTH.boothDate} · ${BOOTH.boothTime}`} />
       <Fact label="어디서" value={BOOTH.boothPlace} />
       <Fact
-        label="뭐하고"
+        label="활동"
         value={
           <span style={S({ display: 'flex', flexDirection: 'column', gap: 6 })}>
-            {ACTIVITIES.map((a, i) => (
-              <span key={a} style={S({ display: 'flex', alignItems: 'center', gap: 8 })}>
-                <span style={S({ flex: 'none', width: 10, height: 10, borderRadius: 3, border: `2px solid ${INK}`, background: OPT_COLORS[i], transform: 'rotate(45deg)' })} />
-                {a}
+            {ACTIVITIES.map((group, i) => (
+              <span key={group[0]} style={S({ display: 'flex', flexDirection: 'column', gap: 4 })}>
+                {group.map((text) => (
+                  <span key={text} style={S({ display: 'flex', alignItems: 'center', gap: 8 })}>
+                    <Bullet color={OPT_COLORS[i]} />
+                    {text}
+                  </span>
+                ))}
               </span>
             ))}
           </span>
@@ -356,8 +370,8 @@ function Result({ t }: { t: TestApi }) {
 
       {/* 1) 방금 뽑은 카드 챙기기 — 카드 바로 아래 */}
       <div style={S({ marginTop: 20, display: 'flex', gap: 10 })}>
-        <button className="press" onClick={t.saveImage} style={S(sticker(INK, { flex: 1.25, padding: '16px 10px', borderRadius: 18, color: '#fff', fontFamily: JUA, fontSize: 18, boxShadow: pop(4, PINK) }))}>💾 카드 저장</button>
-        <button className="press" onClick={t.share} style={S(sticker(UNICORN, { flex: 1, padding: '16px 10px', borderRadius: 18, fontFamily: JUA, fontSize: 18 }))}>📤 공유</button>
+        <button className="press" onClick={t.saveImage} style={S(sticker(INK, { flex: 1.25, padding: '16px 10px', borderRadius: 18, color: '#fff', fontFamily: JUA, fontSize: 18, boxShadow: pop(4, PINK) }))}>💾 사진첩에 저장</button>
+        <button className="press" onClick={t.share} style={S(sticker(UNICORN, { flex: 1, padding: '16px 10px', borderRadius: 18, fontFamily: JUA, fontSize: 18, whiteSpace: 'nowrap' }))}>📤 친구 공유</button>
       </div>
 
       {/* 2) 결과 읽을거리 */}
@@ -452,12 +466,11 @@ function InviteLetter({ t, stage, setStage }: { t: TestApi; stage: LetterStage; 
             <Ticket
               top={
                 <>
-                  <span style={S(pill(UNICORN, { boxShadow: pop(2) }))}>🎟️ 부스 초대권</span>
+                  <span style={S(pill(UNICORN, { boxShadow: pop(2) }))}>🎟️ 초대장</span>
                   <div style={S({ marginTop: 14, fontFamily: JUA, fontSize: 25, lineHeight: 1.34, color: INK })}>
                     {res.name},<br />
                     {BOOTH.boothDate}에 만들러 올래?
                   </div>
-                  <div style={S({ marginTop: 6, font: "600 13.5px/1.6 'Gothic A1'", color: 'rgba(31,27,58,.6)' })}>🦄 {BOOTH.orgName} · {BOOTH.boothName} · 내 결과로 만드는 하루</div>
                 </>
               }
               bottom={
@@ -466,7 +479,7 @@ function InviteLetter({ t, stage, setStage }: { t: TestApi; stage: LetterStage; 
                   <div style={S({ marginTop: 18, padding: '12px 14px', borderRadius: 16, border: `2px solid ${INK}`, background: res.tint, display: 'flex', alignItems: 'center', gap: 12 })}>
                     <AnimalCharacter kind={res.key} scale={0.27} />
                     <span style={S({ font: "700 13px/1.6 'Gothic A1'", color: INK, wordBreak: 'keep-all', textWrap: 'pretty' })}>
-                      너는 「{res.recipe}」 담당! 부스에서 이 레시피 그대로 만들 수 있어.
+                      「{res.name}」가 부스에서 기다릴게. 나를 보러 와~ 🎈
                     </span>
                   </div>
                   <button className="press" onClick={t.goMap} style={S(sticker(INK, { marginTop: 16, width: '100%', padding: 15, borderRadius: 16, color: '#fff', fontFamily: JUA, fontSize: 17, boxShadow: pop(4, PINK) }))}>
@@ -569,7 +582,7 @@ function NavTile({ emoji, title, sub, bg, onClick }: { emoji: string; title: str
 /* ================= 초대장 단독 ================= */
 function Invite({ t }: { t: TestApi }) {
   return (
-    <SubPage t={t} title="부스 초대장" desc={`${BOOTH.orgName}가 여는 하루 부스에 초대할게!`}>
+    <SubPage t={t} title="초대장" desc="하나 골라서 만들고, 키링 받아가기 🎁">
       <div style={S({ animation: 'cardin .5s cubic-bezier(.3,1.35,.5,1) both' })}>
         <Ticket
           top={
@@ -580,14 +593,7 @@ function Invite({ t }: { t: TestApi }) {
               <div style={S({ marginTop: 6, font: "600 13.5px/1.6 'Gothic A1'", color: 'rgba(31,27,58,.6)' })}>{BOOTH.orgName} 체험 부스</div>
             </div>
           }
-          bottom={
-            <>
-              <BoothFacts />
-              <div style={S({ marginTop: 18, padding: 14, borderRadius: 16, border: `2px solid ${INK}`, background: '#F1EBFF', font: "700 13px/1.6 'Gothic A1'", color: INK, wordBreak: 'keep-all' })}>
-                먼저 심리테스트를 하면 내 동물이 정해져. 동물에 따라 만들 수 있는 활동이 달라지니까, 테스트 먼저 하고 부스로 와!
-              </div>
-            </>
-          }
+          bottom={<BoothFacts />}
         />
       </div>
       <button className="press" onClick={t.start} style={S(sticker(INK, { marginTop: 22, width: '100%', padding: 18, borderRadius: 20, color: '#fff', fontFamily: JUA, fontSize: 19, boxShadow: pop(5, PINK) }))}>
@@ -600,7 +606,7 @@ function Invite({ t }: { t: TestApi }) {
 /* ================= 지도 ================= */
 function MapScreen({ t }: { t: TestApi }) {
   return (
-    <SubPage t={t} title="부스 위치" desc="장소가 정해지면 여기에 지도가 들어가!">
+    <SubPage t={t} title="부스 위치">
       <div style={S(sticker('#fff', { overflow: 'hidden', borderRadius: 24, boxShadow: pop(6) }))}>
         <div style={S({ position: 'relative', height: 240, borderBottom: `2.5px solid ${INK}`, background: 'repeating-linear-gradient(135deg, #FFF1C9 0 10px, #FFF7EC 10px 20px)', display: 'flex', alignItems: 'center', justifyContent: 'center' })}>
           <span style={S({ position: 'absolute', top: 58, fontSize: 38, animation: 'tapfoot 1.2s ease-in-out infinite' })}>📍</span>
@@ -623,7 +629,7 @@ function Compare({ t }: { t: TestApi }) {
   const { res, compat } = t;
   const { friend } = t.state;
   return (
-    <SubPage t={t} title="친구랑 비교하기" desc="친구가 뽑은 카드를 골라봐. 같이 오면 재밌을 조합도 알려줄게!">
+    <SubPage t={t} title="친구랑 비교하기" desc="친구가 뽑은 카드를 골라봐. 둘이 얼마나 잘 맞는지 알려줄게!">
       <div style={S({ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 })}>
         {ORDER.map((k) => {
           const on = friend === k;
@@ -652,7 +658,6 @@ function Compare({ t }: { t: TestApi }) {
           </div>
           <div style={S({ marginTop: 16, textAlign: 'center', fontFamily: JUA, fontSize: 22, color: INK })}>{compat.t}</div>
           <p style={S({ margin: '8px 0 0', font: "500 14.5px/1.7 'Gothic A1'", color: INK, textAlign: 'center', wordBreak: 'keep-all', textWrap: 'pretty' })}>{compat.l}</p>
-          <div style={S({ marginTop: 16, padding: '12px 14px', borderRadius: 16, border: `2px solid ${INK}`, background: YELLOW, font: "800 13px/1.6 'Gothic A1'", color: INK, textAlign: 'center' })}>👯 같이 오면 추천: {compat.g}</div>
         </div>
       )}
     </SubPage>

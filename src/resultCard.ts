@@ -316,14 +316,18 @@ function download(blob: Blob, filename: string) {
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
 }
 
-// - iOS: 다운로드하면 '파일' 앱으로 가버려서, 공유 시트의 "이미지 저장"으로 사진첩에 넣음
+// - iOS: 다운로드하면 '파일' 앱으로 가버려서, 공유 시트의 "이미지 저장"으로 사진첩에 넣음.
+//        (웹페이지가 사진첩에 바로 넣는 방법은 없음 — 이 한 번의 탭은 iOS가 강제하는 것)
+//        시트가 공유 버튼 눌렀을 때랑 똑같이 생겨서 헷갈리므로,
+//        시트가 뜨기 직전에 onShareSheet로 "이미지 저장을 눌러줘" 안내를 띄운다.
 // - 안드로이드/PC: 바로 PNG 다운로드 (안드로이드는 갤러리 > Download 폴더에 보임)
 // - 카톡/인스타 등 인앱 브라우저: 저장이 막혀 있는 경우가 많아서 이미지 띄우고 꾹 눌러 저장하게 안내
-export async function saveCard(blob: Blob, filename: string): Promise<SaveOutcome> {
+export async function saveCard(blob: Blob, filename: string, onShareSheet?: () => void): Promise<SaveOutcome> {
   if (isIOS()) {
     const file = new File([blob], filename, { type: 'image/png' });
     if (navigator.canShare?.({ files: [file] })) {
       try {
+        onShareSheet?.();
         await navigator.share({ files: [file] });
         return 'saved';
       } catch (e) {
