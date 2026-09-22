@@ -16,8 +16,10 @@ export const BOOTH = {
 
 export type BoothConfig = typeof BOOTH;
 
-// 지도 미리보기를 눌렀을 때 열릴 네이버 지도 링크 (주소로 검색)
-export const BOOTH_NAVER_MAP_URL = `https://map.naver.com/p/search/${encodeURIComponent(BOOTH.boothPlace)}`;
+// 지도 미리보기를 눌렀을 때 열릴 네이버 지도 링크.
+// "앨리웨이"는 여러 지역에 있는 복합몰 브랜드라 이름만 검색하면 다른 지점이 나올 수 있어서,
+// 정확한 위치가 뜨도록 주소만 잘라서 검색어로 씁니다. (boothPlace의 ", 앨리웨이" 부분은 표시용)
+export const BOOTH_NAVER_MAP_URL = `https://map.naver.com/p/search/${encodeURIComponent(BOOTH.boothPlace.split(',')[0].trim())}`;
 
 // 네이버 지도 API 클라이언트 ID — 값은 커밋되지 않는 .env 파일에 둡니다.
 // 프로젝트 루트에 .env 파일을 만들고 VITE_NAVER_MAP_CLIENT_ID=발급받은값 을 적어주세요. (.env.example 참고)
