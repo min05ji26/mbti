@@ -6,7 +6,7 @@ export const BOOTH = {
   boothName: '부스 이름',
   boothDate: '10월 24일',
   boothTime: '11:00~16:00',
-  boothPlace: '앨리웨이',
+  boothPlace: '인천광역시 미추홀구 숙골로88번길 12, 앨리웨이',
   freebie: '굿즈 키링',
 };
 
