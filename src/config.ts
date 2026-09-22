@@ -16,5 +16,6 @@ export const BOOTH = {
 
 export type BoothConfig = typeof BOOTH;
 
-// 네이버 지도 API 클라이언트 ID 
-export const NAVER_MAP_CLIENT_ID = 'c793v9qnzm';
+// 네이버 지도 API 클라이언트 ID — 값은 커밋되지 않는 .env 파일에 둡니다.
+// 프로젝트 루트에 .env 파일을 만들고 VITE_NAVER_MAP_CLIENT_ID=발급받은값 을 적어주세요. (.env.example 참고)
+export const NAVER_MAP_CLIENT_ID = import.meta.env.VITE_NAVER_MAP_CLIENT_ID ?? '';
