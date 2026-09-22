@@ -1,5 +1,6 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import AnimalCharacter from './components/AnimalCharacter';
+import NaverMap from './components/NaverMap';
 import { BOOTH } from './config';
 import { KW_BG, KW_INK, ORDER, TYPES, type AnimalType } from './data';
 import { TestApi, useTest } from './useTest';
@@ -202,11 +203,8 @@ function Home({ t }: { t: TestApi }) {
         <button className="press" onClick={t.start} style={S(sticker(INK, { width: '100%', padding: 19, borderRadius: 20, color: '#fff', fontFamily: JUA, fontSize: 22, boxShadow: pop(5, PINK) }))}>
           내 캐릭터 카드 뽑기 →
         </button>
-        <button className="press" onClick={t.goInvite} style={S(sticker('#fff', { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, width: '100%', padding: '13px 16px', borderRadius: 18, boxShadow: pop(3), textAlign: 'left' }))}>
-          <span style={S({ display: 'flex', flexDirection: 'column', gap: 3 })}>
-            <span style={S({ font: "800 13.5px/1.3 'Gothic A1'" })}>📍 {BOOTH.boothPlace} · {BOOTH.boothTime}</span>
-            <span style={S({ font: "600 11.5px/1.3 'Gothic A1'", color: 'rgba(31,27,58,.55)' })}>부스 초대장 보기</span>
-          </span>
+        <button className="press" onClick={t.goInvite} style={S(sticker('#fff', { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, width: '100%', padding: '15px 16px', borderRadius: 18, boxShadow: pop(3), textAlign: 'left' }))}>
+          <span style={S({ font: "800 16px/1.3 'Gothic A1'" })}>💌 초대장 먼저 보기</span>
           <span style={S({ fontFamily: JUA, fontSize: 20 })}>›</span>
         </button>
       </div>
@@ -588,9 +586,9 @@ function Invite({ t }: { t: TestApi }) {
           top={
             <div style={S({ textAlign: 'center' })}>
               <span style={S(pill(UNICORN, { boxShadow: pop(2) }))}>YOU'RE INVITED</span>
-              <div style={S({ marginTop: 16, fontSize: 40, lineHeight: 1 })}>🦄</div>
-              <div style={S({ marginTop: 10, fontFamily: JUA, fontSize: 29, lineHeight: 1.3, color: INK })}>{BOOTH.boothName}</div>
-              <div style={S({ marginTop: 6, font: "600 13.5px/1.6 'Gothic A1'", color: 'rgba(31,27,58,.6)' })}>{BOOTH.orgName} 체험 부스</div>
+              <div style={S(sticker('#fff', { marginTop: 14, overflow: 'hidden', borderRadius: 18, boxShadow: pop(3) }))}>
+                <NaverMap lat={BOOTH.boothLat} lng={BOOTH.boothLng} height={140} />
+              </div>
             </div>
           }
           bottom={<BoothFacts />}
@@ -608,11 +606,8 @@ function MapScreen({ t }: { t: TestApi }) {
   return (
     <SubPage t={t} title="부스 위치">
       <div style={S(sticker('#fff', { overflow: 'hidden', borderRadius: 24, boxShadow: pop(6) }))}>
-        <div style={S({ position: 'relative', height: 240, borderBottom: `2.5px solid ${INK}`, background: 'repeating-linear-gradient(135deg, #FFF1C9 0 10px, #FFF7EC 10px 20px)', display: 'flex', alignItems: 'center', justifyContent: 'center' })}>
-          <span style={S({ position: 'absolute', top: 58, fontSize: 38, animation: 'tapfoot 1.2s ease-in-out infinite' })}>📍</span>
-          <span style={S(pill('#fff', { marginTop: 70, flexDirection: 'column', gap: 2, borderRadius: 12, font: '700 11px/1.5 ui-monospace,Menlo,monospace', whiteSpace: 'normal', textAlign: 'center' }))}>
-            지도 이미지 자리<br />(약도 / 캡처 넣기)
-          </span>
+        <div style={S({ borderBottom: `2.5px solid ${INK}` })}>
+          <NaverMap lat={BOOTH.boothLat} lng={BOOTH.boothLng} height={240} />
         </div>
         <div style={S({ padding: '18px 18px 20px', display: 'flex', flexDirection: 'column', gap: 12 })}>
           <Fact label="장소" value={BOOTH.boothPlace} />
