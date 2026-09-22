@@ -1,7 +1,7 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import AnimalCharacter from './components/AnimalCharacter';
 import NaverMap from './components/NaverMap';
-import { BOOTH } from './config';
+import { BOOTH, BOOTH_NAVER_MAP_URL } from './config';
 import { KW_BG, KW_INK, ORDER, TYPES, type AnimalType } from './data';
 import { TestApi, useTest } from './useTest';
 
@@ -477,7 +477,7 @@ function InviteLetter({ t, stage, setStage }: { t: TestApi; stage: LetterStage; 
                   <div style={S({ marginTop: 18, padding: '12px 14px', borderRadius: 16, border: `2px solid ${INK}`, background: res.tint, display: 'flex', alignItems: 'center', gap: 12 })}>
                     <AnimalCharacter kind={res.key} scale={0.27} />
                     <span style={S({ font: "700 13px/1.6 'Gothic A1'", color: INK, wordBreak: 'keep-all', textWrap: 'pretty' })}>
-                      「{res.name}」가 부스에서 기다릴게. 나를 보러 와~ 🎈
+                      이 초대장 캡처해서 입구에서 보여주면, 심리검사를 건너뛰고 바로 체험할 수 있어! 🎈
                     </span>
                   </div>
                   <button className="press" onClick={t.goMap} style={S(sticker(INK, { marginTop: 16, width: '100%', padding: 15, borderRadius: 16, color: '#fff', fontFamily: JUA, fontSize: 17, boxShadow: pop(4, PINK) }))}>
@@ -586,9 +586,9 @@ function Invite({ t }: { t: TestApi }) {
           top={
             <div style={S({ textAlign: 'center' })}>
               <span style={S(pill(UNICORN, { boxShadow: pop(2) }))}>YOU'RE INVITED</span>
-              <div style={S(sticker('#fff', { marginTop: 14, overflow: 'hidden', borderRadius: 18, boxShadow: pop(3) }))}>
+              <a href={BOOTH_NAVER_MAP_URL} target="_blank" rel="noopener noreferrer" aria-label="네이버 지도에서 보기" style={S(sticker('#fff', { display: 'block', marginTop: 14, overflow: 'hidden', borderRadius: 18, boxShadow: pop(3) }))}>
                 <NaverMap lat={BOOTH.boothLat} lng={BOOTH.boothLng} height={140} />
-              </div>
+              </a>
             </div>
           }
           bottom={<BoothFacts />}
@@ -606,9 +606,9 @@ function MapScreen({ t }: { t: TestApi }) {
   return (
     <SubPage t={t} title="부스 위치">
       <div style={S(sticker('#fff', { overflow: 'hidden', borderRadius: 24, boxShadow: pop(6) }))}>
-        <div style={S({ borderBottom: `2.5px solid ${INK}` })}>
+        <a href={BOOTH_NAVER_MAP_URL} target="_blank" rel="noopener noreferrer" aria-label="네이버 지도에서 보기" style={S({ display: 'block', borderBottom: `2.5px solid ${INK}` })}>
           <NaverMap lat={BOOTH.boothLat} lng={BOOTH.boothLng} height={240} />
-        </div>
+        </a>
         <div style={S({ padding: '18px 18px 20px', display: 'flex', flexDirection: 'column', gap: 12 })}>
           <Fact label="장소" value={BOOTH.boothPlace} />
           <Fact label="시간" value={`${BOOTH.boothDate} ${BOOTH.boothTime}`} />
