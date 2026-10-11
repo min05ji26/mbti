@@ -8,8 +8,7 @@
     "not_found_handling": "single-page-application",
     // /api/* 는 정적 파일(SPA index.html)보다 Worker가 먼저 처리
     "run_worker_first": ["/api/*"]
-  }
+  },
   // 방문 지표 저장소 (scripts/metrics.mjs 가 매일 여기서 읽어감)
-  // ⚠️ 대시보드에서 Analytics Engine을 먼저 켜야 함 — 켜기 전에 넣으면 배포가 실패해서 잠시 주석 처리
-  // "analytics_engine_datasets": [{ "binding": "TRACK", "dataset": "mbti_events" }]
+  "analytics_engine_datasets": [{ "binding": "TRACK", "dataset": "mbti_events" }]
 }
