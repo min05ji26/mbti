@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { AnimalKey, AnimalType, COMPAT, ORDER, QUESTIONS, TYPES } from './data';
 import { makeResultCard, saveCard, shareCard } from './resultCard';
+import { track } from './track';
 
 export type Screen =
   | 'home'
@@ -48,6 +49,11 @@ export function useTest() {
     toastTop: false,
     cardPreview: null,
   });
+
+  // 화면이 바뀔 때마다 지표 기록 (결과 화면은 어떤 동물이 나왔는지도 함께)
+  useEffect(() => {
+    track('screen', state.screen === 'result' ? `result:${state.result ?? ''}` : state.screen);
+  }, [state.screen, state.result]);
 
   const patch = useCallback((p: Partial<State> | ((s: State) => Partial<State>)) => {
     setState((s) => ({ ...s, ...(typeof p === 'function' ? p(s) : p) }));
@@ -231,6 +237,7 @@ export function useTest() {
       withCard(async (blob, filename, res) => {
         const text = `내 성격 동물은 「${res.name}」! 너도 해봐 ${location.href}`;
         const outcome = await shareCard(blob, filename, text);
+        track('share', outcome);
         if (outcome !== 'unsupported') return;
 
         // 이미지 공유가 안 되는 브라우저: 링크는 복사하고, 이미지는 저장해서 직접 올릴 수 있게
@@ -256,6 +263,7 @@ export function useTest() {
           // flushSync 없이 setState만 하면 시트가 먼저 떠서 안내를 못 보고 지나감.
           flushSync(() => toast("여기서 '이미지 저장' 📷 을 눌러줘!", { top: true, ms: 7000 }));
         });
+        track('save', outcome);
         if (outcome === 'saved') toast('사진첩에 저장했어! 📷');
         if (outcome === 'cancelled') hideToast();
         if (outcome === 'preview') showCardPreview(blob);
@@ -310,7 +318,10 @@ export function useTest() {
     state,
     ...derived,
     setFriend: (k: AnimalKey) => patch({ friend: k }),
-    seeInvite: () => patch({ inviteSeen: true }),
+    seeInvite: () => {
+      track('invite_popup');
+      patch({ inviteSeen: true });
+    },
     pick,
     back,
     go,

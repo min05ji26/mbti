@@ -2,6 +2,7 @@ import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import AnimalCharacter from './components/AnimalCharacter';
 import NaverMap from './components/NaverMap';
 import { BOOTH, BOOTH_NAVER_MAP_URL } from './config';
+import { track } from './track';
 import { KW_BG, KW_INK, ORDER, TYPES, type AnimalType } from './data';
 import { TestApi, useTest } from './useTest';
 
@@ -586,7 +587,7 @@ function Invite({ t }: { t: TestApi }) {
           top={
             <div style={S({ textAlign: 'center' })}>
               <span style={S(pill(UNICORN, { boxShadow: pop(2) }))}>YOU'RE INVITED</span>
-              <a href={BOOTH_NAVER_MAP_URL} target="_blank" rel="noopener noreferrer" aria-label="네이버 지도에서 보기" style={S(sticker('#fff', { display: 'block', marginTop: 14, overflow: 'hidden', borderRadius: 18, boxShadow: pop(3) }))}>
+              <a href={BOOTH_NAVER_MAP_URL} onClick={() => track('map_click')} target="_blank" rel="noopener noreferrer" aria-label="네이버 지도에서 보기" style={S(sticker('#fff', { display: 'block', marginTop: 14, overflow: 'hidden', borderRadius: 18, boxShadow: pop(3) }))}>
                 <NaverMap lat={BOOTH.boothLat} lng={BOOTH.boothLng} height={140} />
               </a>
             </div>
@@ -606,7 +607,7 @@ function MapScreen({ t }: { t: TestApi }) {
   return (
     <SubPage t={t} title="부스 위치">
       <div style={S(sticker('#fff', { overflow: 'hidden', borderRadius: 24, boxShadow: pop(6) }))}>
-        <a href={BOOTH_NAVER_MAP_URL} target="_blank" rel="noopener noreferrer" aria-label="네이버 지도에서 보기" style={S({ display: 'block', borderBottom: `2.5px solid ${INK}` })}>
+        <a href={BOOTH_NAVER_MAP_URL} onClick={() => track('map_click')} target="_blank" rel="noopener noreferrer" aria-label="네이버 지도에서 보기" style={S({ display: 'block', borderBottom: `2.5px solid ${INK}` })}>
           <NaverMap lat={BOOTH.boothLat} lng={BOOTH.boothLng} height={240} />
         </a>
         <div style={S({ padding: '18px 18px 20px', display: 'flex', flexDirection: 'column', gap: 12 })}>
