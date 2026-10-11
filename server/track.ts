@@ -20,6 +20,8 @@ export async function handleTrack(request: Request, env: TrackEnv): Promise<Resp
     const d = JSON.parse(text) as { e?: unknown; l?: unknown; v?: unknown; s?: unknown };
     const event = String(d.e ?? '');
     if (!/^[a-z_]{1,32}$/.test(event)) return noContent();
+    const sid = String(d.s ?? '').slice(0, 64);
+    if (!sid) return noContent(); // 세션 ID 없는 요청은 앱에서 온 게 아니므로 버림
     const cf = (request as Request & { cf?: { country?: string } }).cf;
     env.TRACK?.writeDataPoint({
       indexes: [event],
@@ -27,7 +29,7 @@ export async function handleTrack(request: Request, env: TrackEnv): Promise<Resp
       blobs: [
         event,
         String(d.l ?? '').slice(0, 64),
-        String(d.s ?? '').slice(0, 64),
+        sid,
         cf?.country ?? '',
         new URL(request.url).hostname,
       ],

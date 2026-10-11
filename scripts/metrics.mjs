@@ -18,6 +18,8 @@ const EVENTS = join(OUT, 'events.jsonl');
 const DATASET = 'mbti_events';
 const KST = 9 * 3600 * 1000;
 // 앱(src/track.ts)이 보내는 이벤트 종류
+// --include-test 를 붙이면 부하 테스트 데이터(loadtest-)도 포함해서 집계 (테스트 결과 확인용)
+const INCLUDE_TEST = process.argv.includes('--include-test');
 const KNOWN = new Set(['visit', 'screen', 'share', 'save', 'invite_popup', 'map_click', 'dwell']);
 
 function loadEnv() {
@@ -89,7 +91,8 @@ function stats(events) {
   const animals = {};
   const refs = {};
   for (const e of events) {
-    if (!KNOWN.has(e.event)) continue; // 배포 확인용 테스트 요청 등은 집계에서 제외
+    if (!KNOWN.has(e.event) || !e.sid) continue; // 배포 확인용 테스트 요청 등은 집계에서 제외
+    if (!INCLUDE_TEST && String(e.sid).startsWith('loadtest-')) continue; // 부하 테스트로 넣은 가상 방문자 제외
     const n = Number(e.n) || 1; // 샘플링 보정 (트래픽이 적으면 항상 1)
     const ss = s(e.sid);
     if (e.event === 'visit') {
