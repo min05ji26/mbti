@@ -232,6 +232,52 @@ ${wa.error ? `\n> Web Analytics 조회 실패(대시보드에서 아직 안 켰�
 
   console.log(`✅ 새 이벤트 ${fresh.length}개 · 누적 ${events.length}개 · 방문자 ${t.visitors}명 · 완료율 ${pct(t.completers, t.starters)}`);
   console.log(`   → metrics/SUMMARY.md, metrics/daily.csv 갱신`);
+
+  // 4) --mail 옵션이면 Gmail로 요약 발송 (매일 아침 예약 작업에서 사용)
+  if (process.argv.includes('--mail')) {
+    const yday = new Date(Date.now() + KST - 86400000).toISOString().slice(0, 10);
+    const y = stats(byDay.get(yday) ?? []);
+    const resume = md.split('## ✍️ 이력서용 문장 (숫자 자동 갱신)\n')[1].split('\n').filter((l) => l.startsWith('- '));
+    await sendMail(env, {
+      subject: `📊 [성격 동물 테스트] ${yday} 방문 ${y.visitors}명 · 완료율 ${pct(y.completers, y.starters)} (누적 ${t.visitors}명)`,
+      html: mailHtml({ yday, y, t, peak, topAnimals, recent, resume }),
+    });
+  }
+}
+
+async function sendMail(env, { subject, html }) {
+  writeFileSync(join(OUT, 'mail-preview.html'), `<title>${subject}</title>` + html);
+  const user = env.GMAIL_USER;
+  const pass = (env.GMAIL_APP_PASSWORD ?? '').replace(/\s/g, '');
+  if (!user || !pass) {
+    console.error('❌ 메일 발송하려면 .env 에 GMAIL_USER / GMAIL_APP_PASSWORD 가 필요해요.');
+    process.exit(1);
+  }
+  const { default: nodemailer } = await import('nodemailer');
+  const tx = nodemailer.createTransport({ service: 'gmail', auth: { user, pass } });
+  await tx.sendMail({ from: `성격 동물 테스트 리포트 <${user}>`, to: env.METRICS_MAIL_TO || user, subject, html });
+  console.log(`📧 ${env.METRICS_MAIL_TO || user} 로 메일 발송 완료`);
+}
+
+function mailHtml({ yday, y, t, peak, topAnimals, recent, resume }) {
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const bold = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+  const row = (k, v) => `<tr><td style="padding:6px 10px;color:#666">${k}</td><td style="padding:6px 10px;text-align:right"><b>${v}</b></td></tr>`;
+  const table = (rows) => `<table style="width:100%;border-collapse:collapse;background:#fafafa;border-radius:8px">${rows.join('')}</table>`;
+  return `<div style="font-family:-apple-system,sans-serif;max-width:520px;margin:auto;color:#222;line-height:1.5">
+<h2 style="margin:0 0 4px">📊 성격 동물 테스트 일일 리포트</h2>
+<p style="color:#888;margin:0 0 16px">어제(${yday}) 기준</p>
+<h3>어제</h3>
+${table([row('방문자', `${y.visitors}명`), row('테스트 시작 → 완료', `${y.starters} → ${y.completers}명 (${pct(y.completers, y.starters)})`), row('평균 체류시간', fmtSec(y.avgDwell)), row('저장 / 공유', `${y.saved} / ${y.shared}회`), row('지도 클릭', `${y.mapClick}회`)])}
+<h3>누적</h3>
+${table([row('순 방문자', `${t.visitors.toLocaleString()}명`), row('완료율', pct(t.completers, t.starters)), row('저장·공유한 사람', `${t.keepers}명 (${pct(t.keepers, t.completers)})`), row('평균 체류시간', fmtSec(t.avgDwell)), row('최다 방문일', `${peak.d} (${peak.v}명)`)])}
+<h3>최근 7일 방문자</h3>
+<p>${recent.map((r) => `${r.d.slice(5)}: <b>${r.v}</b>`).join(' · ') || '아직 데이터 없음'}</p>
+<h3>결과 동물</h3>
+<p>${topAnimals.map(([a, n]) => `${esc(a)} ${n}`).join(' · ') || '아직 데이터 없음'}</p>
+<h3>✍️ 이력서용 문장</h3>
+<ul>${resume.map((l) => `<li>${bold(l.slice(2))}</li>`).join('')}</ul>
+</div>`;
 }
 
 main().catch((e) => {
