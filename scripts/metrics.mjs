@@ -17,6 +17,8 @@ const OUT = join(ROOT, 'metrics');
 const EVENTS = join(OUT, 'events.jsonl');
 const DATASET = 'mbti_events';
 const KST = 9 * 3600 * 1000;
+// 앱(src/track.ts)이 보내는 이벤트 종류
+const KNOWN = new Set(['visit', 'screen', 'share', 'save', 'invite_popup', 'map_click', 'dwell']);
 
 function loadEnv() {
   const env = { ...process.env };
@@ -87,6 +89,7 @@ function stats(events) {
   const animals = {};
   const refs = {};
   for (const e of events) {
+    if (!KNOWN.has(e.event)) continue; // 배포 확인용 테스트 요청 등은 집계에서 제외
     const n = Number(e.n) || 1; // 샘플링 보정 (트래픽이 적으면 항상 1)
     const ss = s(e.sid);
     if (e.event === 'visit') {
