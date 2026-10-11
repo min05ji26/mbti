@@ -24,7 +24,9 @@ export async function handleTrack(request: Request, env: TrackEnv): Promise<Resp
     if (!sid) return noContent(); // 세션 ID 없는 요청은 앱에서 온 게 아니므로 버림
     const cf = (request as Request & { cf?: { country?: string } }).cf;
     env.TRACK?.writeDataPoint({
-      indexes: [event],
+      // index = 샘플링 단위. 접속이 몰리면 Cloudflare가 index별로 샘플링하는데, 세션 ID로 두면
+      // 한 사람의 이벤트는 통째로 남거나 통째로 빠져서 완료율·체류시간 같은 세션 지표가 안 깨짐
+      indexes: [sid],
       // blob1=이벤트, blob2=라벨(화면/동물/유입경로 등), blob3=세션ID, blob4=국가, blob5=도메인
       blobs: [
         event,

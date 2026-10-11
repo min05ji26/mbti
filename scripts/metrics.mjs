@@ -8,7 +8,7 @@
 //   CLOUDFLARE_API_TOKEN=...   (권한: Account → Account Analytics → Read)
 // 실행: node scripts/metrics.mjs
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -20,6 +20,9 @@ const KST = 9 * 3600 * 1000;
 // 앱(src/track.ts)이 보내는 이벤트 종류
 // --include-test 를 붙이면 부하 테스트 데이터(loadtest-)도 포함해서 집계 (테스트 결과 확인용)
 const INCLUDE_TEST = process.argv.includes('--include-test');
+// 탭을 켜두고 방치하거나 비정상 값이 와도 평균이 튀지 않게 세션당 체류시간 상한 (30분)
+const DWELL_CAP = 1800;
+const ROW_LIMIT = 100000;
 const KNOWN = new Set(['visit', 'screen', 'share', 'save', 'invite_popup', 'map_click', 'dwell']);
 
 function loadEnv() {
@@ -121,7 +124,7 @@ function stats(events) {
       }
     } else if (e.event === 'invite_popup') c.invitePopup += n;
     else if (e.event === 'map_click') c.mapClick += n;
-    else if (e.event === 'dwell') ss.dwell = Math.max(ss.dwell, e.value);
+    else if (e.event === 'dwell') ss.dwell = Math.max(ss.dwell, Math.min(Number(e.value) || 0, DWELL_CAP));
   }
   const all = [...sessions.values()];
   const dwells = all.map((x) => x.dwell).filter((x) => x > 0);
@@ -146,17 +149,18 @@ async function main() {
   }
   mkdirSync(OUT, { recursive: true });
 
-  // 1) 마지막으로 받은 시각 이후 이벤트만 새로 받아 누적
+  // 1) 이벤트 받기. Cloudflare는 이벤트를 몇 분 늦게 저장하기도 해서, "마지막 시각 이후"만 받으면
+  //    늦게 도착한 이벤트를 놓친다. 그래서 최근 48시간은 매번 통째로 다시 받아 교체하고,
+  //    그 이전은 로컬 보관본(events.jsonl)을 그대로 쓴다. (Cloudflare 보관기간 3개월이 지나도 데이터 유지)
   const old = readEvents();
-  const last = old.length ? old[old.length - 1].ts : null;
-  const where = last ? `timestamp >= toDateTime('${last}')` : `timestamp > NOW() - INTERVAL '90' DAY`;
+  const utc = (ms) => new Date(ms).toISOString().slice(0, 19).replace('T', ' ');
+  const cutoff = utc(Date.now() - (old.length ? 48 : 90 * 24) * 3600 * 1000);
   const rows = await cfSql(
     env,
-    `SELECT timestamp, blob1, blob2, blob3, blob4, blob5, double1, _sample_interval FROM ${DATASET} WHERE ${where} ORDER BY timestamp ASC LIMIT 100000 FORMAT JSON`,
+    `SELECT timestamp, blob1, blob2, blob3, blob4, blob5, double1, _sample_interval FROM ${DATASET} WHERE timestamp >= toDateTime('${cutoff}') ORDER BY timestamp ASC LIMIT ${ROW_LIMIT} FORMAT JSON`,
   );
-  // 같은 초(last)에 찍힌 건 이미 받은 것과 겹칠 수 있어서 중복 제거
-  const seen = new Set(old.filter((e) => e.ts === last).map((e) => JSON.stringify(e)));
-  const fresh = rows.map((r) => ({
+  if (rows.length >= ROW_LIMIT) console.warn(`⚠️ 48시간 이벤트가 ${ROW_LIMIT}개를 넘어 일부만 받았어요. 하루에 여러 번 실행해 주세요.`);
+  const recentRows = rows.map((r) => ({
     ts: r.timestamp,
     event: r.blob1,
     label: r.blob2,
@@ -165,9 +169,12 @@ async function main() {
     host: r.blob5,
     value: Number(r.double1) || 0,
     n: Number(r._sample_interval) || 1,
-  })).filter((e) => !seen.has(JSON.stringify(e)));
-  if (fresh.length) appendFileSync(EVENTS, fresh.map((e) => JSON.stringify(e)).join('\n') + '\n');
-  const events = old.concat(fresh);
+  }));
+  const events = old.filter((e) => e.ts < cutoff).concat(recentRows);
+  const added = Math.max(events.length - old.length, 0);
+  // 중간에 끊겨도 기존 파일이 깨지지 않게 임시 파일에 쓴 뒤 교체
+  writeFileSync(EVENTS + '.tmp', events.map((e) => JSON.stringify(e)).join('\n') + (events.length ? '\n' : ''));
+  renameSync(EVENTS + '.tmp', EVENTS);
 
   // 2) 날짜별(KST) 지표
   const byDay = new Map();
@@ -233,7 +240,7 @@ ${topRefs.map(([r, n]) => `- ${r}: ${n}`).join('\n') || '- (아직 데이터 없
 ${wa.error ? `\n> Web Analytics 조회 실패(대시보드에서 아직 안 켰으면 정상): ${wa.error}\n` : ''}`;
   writeFileSync(join(OUT, 'SUMMARY.md'), md);
 
-  console.log(`✅ 새 이벤트 ${fresh.length}개 · 누적 ${events.length}개 · 방문자 ${t.visitors}명 · 완료율 ${pct(t.completers, t.starters)}`);
+  console.log(`✅ 새 이벤트 ${added}개 · 누적 ${events.length}개 · 방문자 ${t.visitors}명 · 완료율 ${pct(t.completers, t.starters)}`);
   console.log(`   → metrics/SUMMARY.md, metrics/daily.csv 갱신`);
 
 }
